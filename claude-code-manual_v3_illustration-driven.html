@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>私のClaude Code説明書</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <style>
+    :root {
+      --il-primary:   #FF8A65;
+      --il-secondary: #7986CB;
+      --il-accent:    #FFD54F;
+      --il-green:     #81C784;
+      --il-pink:      #F48FB1;
+      --il-bg:        #FFF8F3;
+      --il-bg-sub:    #FFF0E6;
+      --il-bg-card:   #FFFFFF;
+      --il-text:      #4A3728;
+      --il-text-sub:  #8D6E63;
+      --il-border:    rgba(255, 138, 101, 0.18);
+      --il-shadow:    rgba(255, 138, 101, 0.12);
+      /* legacy aliases for compatibility */
+      --accent-1:    var(--il-primary);
+      --accent-2:    var(--il-secondary);
+      --text-main:   var(--il-text);
+      --text-sub:    var(--il-text-sub);
+    }
+
+    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ===== 背景デコレーション（ブロブ） ===== */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(255,138,101,0.18) 0%, transparent 70%);
+      top: -120px; left: -120px;
+    }
+    body::after {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(121,134,203,0.16) 0%, transparent 70%);
+      bottom: -100px; right: -100px;
+    }
+
+    body {
+      font-family: 'Nunito', 'Zen Maru Gothic', 'Noto Sans JP', sans-serif;
+      background-color: var(--il-bg);
+      background-image:
+        radial-gradient(circle at 80% 10%, rgba(255,213,79,0.13) 0%, transparent 45%),
+        radial-gradient(circle at 20% 90%, rgba(129,199,132,0.12) 0%, transparent 45%);
+      background-attachment: fixed;
+      color: var(--il-text);
+      display: flex;
+      min-height: 100vh;
+      line-height: 1.8;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3, h4 { word-break: keep-all; overflow-wrap: break-word; }
+
+    /* ===== サイドバー ===== */
+    #sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--il-bg-sub);
+      border-right: 2px solid var(--il-border);
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      box-shadow: 4px 0 20px var(--il-shadow);
+    }
+    #sidebar-header {
+      padding: 28px 20px 18px;
+      border-bottom: 2px solid var(--il-border);
+      background: linear-gradient(135deg, rgba(255,138,101,0.12), rgba(121,134,203,0.08));
+    }
+    #sidebar-header h1 { font-size: 1rem; font-weight: 900; color: var(--il-primary); line-height: 1.4; }
+    #sidebar-header p  { font-size: 0.75rem; color: var(--il-text-sub); margin-top: 4px; }
+    #sidebar nav { padding: 12px 0; flex: 1; }
+    #sidebar nav a {
+      display: block;
+      padding: 9px 20px;
+      font-size: 0.82rem;
+      color: var(--il-text-sub);
+      text-decoration: none;
+      border-left: 4px solid transparent;
+      border-radius: 0 20px 20px 0;
+      margin-right: 10px;
+      transition: all 0.2s;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: rgba(255,138,101,0.12);
+      border-left-color: var(--il-primary);
+      color: var(--il-primary);
+    }
+    #sidebar nav .nav-section {
+      font-size: 0.66rem;
+      font-weight: 800;
+      color: var(--il-primary);
+      opacity: 0.55;
+      padding: 16px 20px 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    #theme-toggle {
+      margin: 12px 16px;
+      padding: 8px 12px;
+      background: rgba(255,138,101,0.1);
+      border: 2px solid var(--il-border);
+      border-radius: 20px;
+      color: var(--il-text-sub);
+      font-size: 0.8rem;
+      font-family: 'Nunito', 'Noto Sans JP', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    #theme-toggle:hover { background: rgba(255,138,101,0.2); transform: scale(1.02); }
+    #theme-toggle .material-icons { font-size: 1rem; color: var(--il-primary); }
+
+    /* ===== メインコンテンツ ===== */
+    #main { margin-left: 260px; flex: 1; max-width: 900px; padding: 40px 40px 80px; position: relative; z-index: 1; }
+
+    /* ===== ヒーロー ===== */
+    #hero {
+      background: linear-gradient(135deg, rgba(255,138,101,0.15) 0%, rgba(121,134,203,0.10) 100%);
+      border: 2px solid var(--il-border);
+      border-radius: 28px;
+      padding: 48px 40px;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 32px var(--il-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(255,213,79,0.25) 0%, transparent 70%);
+      top: -60px; right: -40px;
+      border-radius: 50%;
+    }
+    #hero h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--il-primary) 0%, var(--il-secondary) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    #hero p { font-size: 1rem; color: var(--il-text-sub); line-height: 1.7; }
+    .hero-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .hero-badge {
+      background: #fff;
+      border: 2px solid var(--il-border);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--il-primary);
+    }
+
+    /* ===== セクション ===== */
+    section {
+      background: var(--il-bg-card);
+      border: 2px solid var(--il-border);
+      border-radius: 24px;
+      padding: 32px 32px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px var(--il-shadow);
+    }
+    section h2 {
+      font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+      font-weight: 900;
+      color: var(--il-text);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--il-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    section h2 .material-icons { font-size: 1.4rem; color: var(--il-primary); }
+    section h3 { font-size: 1rem; font-weight: 800; color: var(--il-primary); margin: 24px 0 10px; }
+    section p  { font-size: 0.92rem; margin-bottom: 10px; color: var(--il-text); }
+    section ul { padding-left: 20px; margin-bottom: 10px; }
+    section ul li { font-size: 0.92rem; margin-bottom: 4px; color: var(--il-text); }
+    section ol { padding-left: 20px; margin-bottom: 10px; }
+    section ol li { font-size: 0.92rem; margin-bottom: 4px; color: var(--il-text); }
+
+    /* ===== カード ===== */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 12px; }
+    .card {
+      background: var(--il-bg-card);
+      border: 2px solid var(--il-border);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 4px 16px var(--il-shadow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(255,138,101,0.18); }
+    .card-icon { display: flex; align-items: center; margin-bottom: 8px; }
+    .card-icon .material-icons { font-size: 2rem; color: var(--il-primary); }
+    .card h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 6px; color: var(--il-text); }
+    .card p  { font-size: 0.78rem; color: var(--il-text-sub); margin: 0; line-height: 1.5; }
+    .card-links { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .card-link {
+      display: inline-block;
+      padding: 3px 10px;
+      background: rgba(255,138,101,0.1);
+      color: var(--il-primary);
+      border: 1.5px solid var(--il-border);
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .card-link:hover { background: var(--il-primary); color: #fff; border-color: var(--il-primary); }
+
+    /* ===== コードブロック ===== */
+    .code-block {
+      background: #2D2420;
+      border: 2px solid rgba(255,138,101,0.25);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+    .code-block code { font-family: 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 0.85rem; color: #FFD180; line-height: 1.7; white-space: pre; }
+    .code-comment { color: #8D6E63; }
+    .code-string  { color: #A5D6A7; }
+    .code-keyword { color: #F48FB1; }
+
+    /* ===== テーブル ===== */
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.88rem; }
+    th { background: rgba(255,138,101,0.12); color: var(--il-text); padding: 10px 14px; text-align: left; font-weight: 800; border-bottom: 2px solid var(--il-border); }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--il-border); color: var(--il-text); }
+    tr:hover td { background: rgba(255,138,101,0.05); }
+    .kbd { display: inline-block; background: #FFF0E6; color: var(--il-primary); font-family: monospace; font-size: 0.8rem; padding: 2px 8px; border-radius: 6px; border: 1.5px solid var(--il-border); font-weight: 700; }
+
+    /* ===== チャット例 ===== */
+    .chat-example { margin: 12px 0; }
+    .chat-bubble { max-width: 85%; padding: 10px 16px; border-radius: 20px; font-size: 0.88rem; line-height: 1.6; margin-bottom: 8px; }
+    .chat-user {
+      background: linear-gradient(135deg, rgba(255,138,101,0.18), rgba(255,213,79,0.12));
+      border: 2px solid rgba(255,138,101,0.2);
+      color: var(--il-text);
+      margin-left: auto;
+      border-bottom-right-radius: 6px;
+    }
+    .chat-claude {
+      background: rgba(121,134,203,0.10);
+      border: 2px solid rgba(121,134,203,0.18);
+      color: var(--il-text);
+      border-bottom-left-radius: 6px;
+    }
+    .chat-label { font-size: 0.72rem; color: var(--il-text-sub); margin-bottom: 3px; font-weight: 700; }
+    .chat-label.right { text-align: right; }
+
+    /* ===== モデル比較 ===== */
+    .model-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+    .model-card {
+      background: var(--il-bg-card);
+      border: 2px solid var(--il-border);
+      border-radius: 20px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 4px 16px var(--il-shadow);
+      transition: transform 0.25s ease;
+    }
+    .model-card:hover { transform: translateY(-3px); }
+    .model-card.opus   { border-color: rgba(244,143,177,0.45); }
+    .model-card.sonnet { border-color: rgba(121,134,203,0.45); }
+    .model-card.haiku  { border-color: rgba(129,199,132,0.45); }
+    .model-card h4 { font-size: 0.95rem; font-weight: 900; margin-bottom: 6px; color: var(--il-text); }
+    .model-card p  { font-size: 0.78rem; color: var(--il-text-sub); line-height: 1.5; margin: 0; }
+    .model-badge { display: inline-block; font-size: 0.68rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; }
+    .opus .model-badge   { background: rgba(244,143,177,0.15); color: #C2185B; border: 1.5px solid rgba(244,143,177,0.4); }
+    .sonnet .model-badge { background: rgba(121,134,203,0.15); color: #3949AB; border: 1.5px solid rgba(121,134,203,0.4); }
+    .haiku .model-badge  { background: rgba(129,199,132,0.15); color: #2E7D32; border: 1.5px solid rgba(129,199,132,0.4); }
+
+    /* ===== Tips / 警告 ===== */
+    .tip-box {
+      background: rgba(255,213,79,0.10);
+      border-left: 4px solid var(--il-accent);
+      border-radius: 0 14px 14px 0;
+      padding: 14px 16px;
+      margin: 10px 0;
+      font-size: 0.88rem;
+      color: var(--il-text);
+    }
+    .tip-box strong { color: #E65100; }
+    .warn-box {
+      background: rgba(244,143,177,0.10);
+      border-left: 4px solid var(--il-pink);
+      border-radius: 0 14px 14px 0;
+      padding: 14px 16px;
+      margin: 10px 0;
+      font-size: 0.88rem;
+      color: var(--il-text);
+    }
+
+    /* ===== Material Icons ===== */
+    .material-icons { color: var(--il-primary); }
+
+    /* ===== フェードイン ===== */
+    .fi { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fi.is-visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== スクロールバー ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--il-bg-sub); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,138,101,0.35); border-radius: 3px; }
+
+    /* ===== レスポンシブ ===== */
+    @media (max-width: 768px) {
+      #sidebar { width: 100%; height: auto; position: relative; }
+      #main { margin-left: 0; padding: 20px; }
+      body { flex-direction: column; }
+      .model-grid { grid-template-columns: 1fr; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== サイドバー ===== -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <h1>私のClaude Code<br>説明書</h1>
+    <p>藤田隆 / 2026年版</p>
+  </div>
+  <nav>
+    <div class="nav-section">はじめに</div>
+    <a href="#what">1. Claude Codeってなに？</a>
+    <a href="#start">2. まず使ってみよう</a>
+    <a href="#request">3. こんなことを頼める</a>
+    <div class="nav-section">活用事例</div>
+    <a href="#works">4. 実際に作ったもの</a>
+    <div class="nav-section">使い方</div>
+    <a href="#basic">5. 基本操作</a>
+    <a href="#commands">6. コマンド・ショートカット</a>
+    <a href="#features">7. 便利な機能</a>
+    <div class="nav-section">上級者向け</div>
+    <a href="#api">8. Claude API の使い方</a>
+    <a href="#settings">9. 設定・カスタマイズ</a>
+    <a href="#tips">10. うまく使うコツ</a>
+  </nav>
+  <button id="theme-toggle" onclick="toggleTheme()">
+    <span class="material-icons">dark_mode</span>
+    ダークモード切替
+  </button>
+</aside>
+
+<!-- ===== メインコンテンツ ===== -->
+<main id="main">
+
+  <!-- ヒーロー -->
+  <div id="hero" class="fi">
+    <h2>私のClaude Code説明書</h2>
+    <p>特別支援学校の数学教諭・藤田隆が<br>Claude Codeを使って学んだことをまとめた、自分専用のガイドブックです。</p>
+    <div class="hero-badges">
+      <span class="hero-badge">初心者向け</span>
+      <span class="hero-badge">日本語対応</span>
+      <span class="hero-badge">実例つき</span>
+      <span class="hero-badge">2026年版</span>
+    </div>
+  </div>
+
+  <!-- 1. Claude Codeってなに？ -->
+  <section id="what">
+    <h2 class="fi">
+      <span class="material-icons">help_outline</span>
+      1. Claude Codeってなに？
+    </h2>
+    <p class="fi">Claude Codeは、AIアシスタント「Claude」がターミナル（黒い画面）の中で直接動くツールです。普通のチャットとは違い、<strong>パソコンのファイルを読んだり、書いたり、プログラムを実行したり</strong>することができます。</p>
+
+    <h3>できること</h3>
+    <div class="card-grid">
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">description</span></div>
+        <h4>ファイルを作る・編集する</h4>
+        <p>HTMLやPDFなどのファイルを話しかけるだけで作れる</p>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">bug_report</span></div>
+        <h4>バグを直す</h4>
+        <p>エラーが出たときに原因を調べて修正してくれる</p>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">chat</span></div>
+        <h4>コードを説明する</h4>
+        <p>難しいプログラムを日本語でわかりやすく説明</p>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">web</span></div>
+        <h4>Webサイトを作る</h4>
+        <p>HTMLやCSSで見た目のきれいなサイトを作成</p>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">slideshow</span></div>
+        <h4>スライドを作る</h4>
+        <p>PowerPointのスライドを自動で作成してくれる</p>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">smart_toy</span></div>
+        <h4>自動化ツールを作る</h4>
+        <p>繰り返し作業を自動でやってくれるツールを作成</p>
+      </div>
+    </div>
+
+    <h3>普通のClaude（チャット）との違い</h3>
+    <div class="fi">
+      <table>
+        <tr><th>機能</th><th>Claude（チャット）</th><th>Claude Code</th></tr>
+        <tr><td>会話・質問</td><td>✅</td><td>✅</td></tr>
+        <tr><td>ファイルの読み書き</td><td>❌</td><td>✅</td></tr>
+        <tr><td>プログラムの実行</td><td>❌</td><td>✅</td></tr>
+        <tr><td>フォルダの操作</td><td>❌</td><td>✅</td></tr>
+        <tr><td>自動化・連続作業</td><td>❌</td><td>✅</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 2. まず使ってみよう -->
+  <section id="start">
+    <h2 class="fi">
+      <span class="material-icons">rocket_launch</span>
+      2. まず使ってみよう
+    </h2>
+
+    <h3>起動方法</h3>
+    <p class="fi">ターミナルを開いて、以下のコマンドを打つだけです。</p>
+    <div class="code-block fi"><code><span class="code-comment"># Claude Codeを起動する</span>
+claude</code></div>
+
+    <h3>終了方法</h3>
+    <div class="code-block fi"><code><span class="code-comment"># 終了するには Ctrl+C を押す、または</span>
+/exit</code></div>
+
+    <div class="tip-box fi">
+      <strong>ポイント：</strong>難しいことを考えなくて大丈夫！起動したら、普通の日本語で話しかけるだけです。
+    </div>
+
+    <h3>最初にやること</h3>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">こんにちは！何ができますか？</div>
+      <div class="chat-label">Claude Code</div>
+      <div class="chat-bubble chat-claude">こんにちは！私はClaude Codeです。ファイルの作成・編集、プログラムの実行、Webサイトの作成など、幅広くお手伝いできます。何か作りたいものはありますか？</div>
+    </div>
+  </section>
+
+  <!-- 3. こんなことを頼める -->
+  <section id="request">
+    <h2 class="fi">
+      <span class="material-icons">record_voice_over</span>
+      3. こんなことを頼める
+    </h2>
+
+    <h3>ファイルを作る</h3>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">「おはようございます」と表示するHTMLファイルを作ってください</div>
+      <div class="chat-bubble chat-claude">index.htmlを作成しました。ブラウザで開くと「おはようございます」と表示されます。</div>
+    </div>
+
+    <h3>バグを直す</h3>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">このエラーが出て動きません：TypeError: Cannot read property</div>
+      <div class="chat-bubble chat-claude">原因は15行目の変数が未定義のためです。以下のように修正しました。</div>
+    </div>
+
+    <h3>授業案・文書を作る</h3>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">特別支援学校の中学2年生向けの英語授業案を作ってください。テーマは「春のあいさつ」です</div>
+      <div class="chat-bubble chat-claude">授業案のスライドを作成しました。導入・展開・まとめの3部構成で、視覚的にわかりやすい内容にしました。</div>
+    </div>
+
+    <h3>説明してもらう</h3>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">このコードを小学生でもわかるように説明してください</div>
+      <div class="chat-bubble chat-claude">このコードは「もし〇〇なら△△をする」という条件分岐の処理です。例えるなら、信号が青なら渡る、赤なら止まる、というルールと同じです。</div>
+    </div>
+  </section>
+
+  <!-- 4. 実際に作ったもの -->
+  <section id="works">
+    <h2 class="fi">
+      <span class="material-icons">inventory_2</span>
+      4. 実際に作ったもの（活用事例）
+    </h2>
+    <p class="fi">Claude Codeのブートキャンプで実際に作ったものです。リンクをクリックすると開けます。</p>
+
+    <h3>数学 スライド・講義動画</h3>
+    <div class="card-grid">
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">calculate</span></div>
+        <h4>正の数・負の数</h4>
+        <p>中学数学の正負の数をわかりやすく解説したスライドと講義動画</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/pptx-agent/output/20260423_060125_%E6%AD%A3%E3%81%AE%E6%95%B0%E3%83%BB%E8%B2%A0%E3%81%AE%E6%95%B0.pptx">スライド (PPTX)</a>
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/pptx-agent/output/%E8%87%AA%E5%8B%95%E8%AC%9B%E5%BA%A7%E5%88%B6%E4%BD%9C/20260423_060125_%E6%AD%A3%E3%81%AE%E6%95%B0%E3%83%BB%E8%B2%A0%E3%81%AE%E6%95%B0_%E8%AC%9B%E7%BE%A9%E5%8B%95%E7%94%BB.mp4">講義動画 (MP4)</a>
+        </div>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">functions</span></div>
+        <h4>一次方程式の授業</h4>
+        <p>一次方程式の解き方を丁寧に解説したスライドと講義動画</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/pptx-agent/output/20260422_011536_%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B%E5%BC%8F%E3%81%AE%E6%8E%88%E6%A5%AD.pptx">スライド (PPTX)</a>
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/pptx-agent/output/%E8%87%AA%E5%8B%95%E8%AC%9B%E5%BA%A7%E5%88%B6%E4%BD%9C/20260421_044516_%E4%B8%80%E6%AC%A1%E6%96%B9%E7%A8%8B%E5%BC%8F%E3%81%AE%E6%8E%88%E6%A5%AD_%E8%AC%9B%E7%BE%A9%E5%8B%95%E7%94%BB.mp4">講義動画 (MP4)</a>
+        </div>
+      </div>
+    </div>
+
+    <h3>算数 プリント作成ツール</h3>
+    <div class="card-grid">
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">print</span></div>
+        <h4>四則演算プリント作成サイト</h4>
+        <p>小学3年生向け。足し算・引き算・掛け算・割り算を選んでPDFで印刷できる</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/cc-project-builder/sansuu-yonsoku-print-g3/public/index.html">サイトを開く</a>
+        </div>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">add_circle</span></div>
+        <h4>たしざんプリントPDF生成</h4>
+        <p>2けた＋2けたの筆算・繰り上がりなしの問題をランダム生成してPDF出力</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/cc-project-builder/sansuu-kasan-print/">フォルダを開く</a>
+        </div>
+      </div>
+    </div>
+
+    <h3>特別支援学校 英語授業案スライド</h3>
+    <div class="card-grid">
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">school</span></div>
+        <h4>えいごのじゅぎょう Hello! Spring!</h4>
+        <p>知的障害のある子どもたち向けの春のあいさつ英語授業スライド</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/pptx-agent/output/20260418_185623_%E3%81%88%E3%81%84%E3%81%94%E3%81%AE%E3%81%98%E3%82%85%E3%81%8E%E3%82%87%E3%81%86%20Hello!%20Spring!.pptx">スライド (PPTX)</a>
+        </div>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">music_note</span></div>
+        <h4>みんなで おどろう！</h4>
+        <p>体を動かしながら英語を楽しむ授業スライド</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/pptx-agent/output/20260419_013139_%E3%81%BF%E3%82%93%E3%81%AA%E3%81%A7%20%E3%81%8A%E3%81%A9%E3%82%8D%E3%81%86%EF%BC%81.pptx">スライド (PPTX)</a>
+        </div>
+      </div>
+    </div>
+
+    <h3>Webアプリ・ツール</h3>
+    <div class="card-grid">
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">language</span></div>
+        <h4>LP制作ツール</h4>
+        <p>対話だけでプロ品質のランディングページを自動生成するツール</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/cc-lp/">フォルダを開く</a>
+        </div>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">view_kanban</span></div>
+        <h4>Trelloライクなタスク管理アプリ</h4>
+        <p>React製のドラッグ&amp;ドロップ対応タスク管理Webアプリ</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/trello-app/frontend/index.html">サイトを開く</a>
+        </div>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">send</span></div>
+        <h4>X（Twitter）自動投稿ツール</h4>
+        <p>AIがX（Twitter）の投稿内容を自動生成・投稿するシステム</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/x-auto-post/">フォルダを開く</a>
+        </div>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">search</span></div>
+        <h4>案件探索ツール（job-scout）</h4>
+        <p>複数の案件サイトを横断して案件を探索・一覧化するツール</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/job-scout/">フォルダを開く</a>
+        </div>
+      </div>
+    </div>
+
+    <h3>タイマー系</h3>
+    <div class="card-grid">
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">timer</span></div>
+        <h4>ポモドーロタイマー</h4>
+        <p>25分集中・5分休憩を繰り返す学習用タイマー</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/cc-project-builder/pomodoro/index.html">サイトを開く</a>
+        </div>
+      </div>
+      <div class="card fi">
+        <div class="card-icon"><span class="material-icons">kitchen</span></div>
+        <h4>３分間クッキングタイマー</h4>
+        <p>料理のときに使う3分間のタイマーアプリ</p>
+        <div class="card-links">
+          <a class="card-link" href="file:///Users/takashifujita/Desktop/cc-project-builder/index.html">サイトを開く</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 基本操作 -->
+  <section id="basic">
+    <h2 class="fi">
+      <span class="material-icons">touch_app</span>
+      5. 基本操作
+    </h2>
+
+    <h3>ファイルを読む</h3>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">index.htmlの内容を見せてください</div>
+    </div>
+
+    <h3>ファイルを作る・編集する</h3>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">新しいファイル「lesson.html」を作って、タイトルに「今日の授業」と表示してください</div>
+    </div>
+
+    <h3>フォルダの中を確認する</h3>
+    <div class="code-block fi"><code><span class="code-comment"># 今いる場所のファイル一覧を見る</span>
+ls
+
+<span class="code-comment"># 特定のフォルダに移動する</span>
+cd Desktop</code></div>
+
+    <h3>コードを実行する</h3>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">このPythonファイルを実行して、結果を教えてください</div>
+    </div>
+
+    <div class="tip-box fi">
+      <strong>ヒント：</strong>「〜して」と日本語で話しかけるだけでOKです。専門用語は必要ありません！
+    </div>
+  </section>
+
+  <!-- 6. コマンド・ショートカット -->
+  <section id="commands">
+    <h2 class="fi">
+      <span class="material-icons">keyboard</span>
+      6. よく使うコマンド・ショートカット
+    </h2>
+
+    <h3>スラッシュコマンド（よく使うもの）</h3>
+    <div class="fi">
+      <table>
+        <tr><th>コマンド</th><th>説明</th></tr>
+        <tr><td><span class="kbd">/help</span></td><td>使い方の一覧を表示する</td></tr>
+        <tr><td><span class="kbd">/clear</span></td><td>会話の履歴をリセットする（新しい話題を始めるとき）</td></tr>
+        <tr><td><span class="kbd">/compact</span></td><td>会話が長くなったときに圧縮する</td></tr>
+        <tr><td><span class="kbd">/exit</span></td><td>Claude Codeを終了する</td></tr>
+      </table>
+    </div>
+
+    <h3>キーボードショートカット</h3>
+    <div class="fi">
+      <table>
+        <tr><th>キー</th><th>説明</th></tr>
+        <tr><td><span class="kbd">Ctrl + C</span></td><td>処理を途中で止める</td></tr>
+        <tr><td><span class="kbd">Ctrl + L</span></td><td>画面をきれいにする</td></tr>
+        <tr><td><span class="kbd">↑ キー</span></td><td>前に入力したコマンドを呼び出す</td></tr>
+      </table>
+    </div>
+
+    <div class="tip-box fi">
+      <strong>よく使うのはこれだけ！</strong><br>
+      <span class="kbd">/clear</span>（リセット）と <span class="kbd">Ctrl+C</span>（中断）の2つを覚えておけばOKです。
+    </div>
+  </section>
+
+  <!-- 7. 便利な機能 -->
+  <section id="features">
+    <h2 class="fi">
+      <span class="material-icons">extension</span>
+      7. 便利な機能
+    </h2>
+
+    <h3>MCP（外部ツール連携）</h3>
+    <p class="fi">MCPとは「Model Context Protocol」の略で、Claude Codeを外部のツールと繋げる仕組みです。例えば：</p>
+    <ul class="fi">
+      <li>ブラウザを操作してWebページを確認する</li>
+      <li>Googleスプレッドシートのデータを読み書きする</li>
+      <li>GitHubのコードを参照する</li>
+    </ul>
+
+    <h3>スキル（/skill-name）</h3>
+    <p class="fi">よく使う作業をワンコマンドで実行できる「スキル」という機能があります。例えば <span class="kbd">/pptx</span> と打つだけでスライド作成モードになります。</p>
+
+    <h3>メモリ機能</h3>
+    <p class="fi">「これを覚えておいて」と伝えると、次の会話でも覚えていてくれます。</p>
+    <div class="chat-example fi">
+      <div class="chat-label right">あなた</div>
+      <div class="chat-bubble chat-user">私は特別支援学校の数学教諭です。これを覚えておいてください</div>
+      <div class="chat-bubble chat-claude">覚えました！今後は特別支援学校の先生向けにお手伝いします。</div>
+    </div>
+  </section>
+
+  <!-- 8. Claude API -->
+  <section id="api">
+    <h2 class="fi">
+      <span class="material-icons">api</span>
+      8. Claude API の使い方
+    </h2>
+
+    <h3>APIキーの取得方法</h3>
+    <ol class="fi">
+      <li>Anthropicのコンソール（console.anthropic.com）にアクセス</li>
+      <li>アカウントを作成してログイン</li>
+      <li>「API Keys」メニューから新しいキーを作成</li>
+      <li>キーをコピーして安全な場所に保存</li>
+    </ol>
+
+    <h3>環境変数への設定方法</h3>
+    <div class="code-block fi"><code><span class="code-comment"># .envファイルに記載する</span>
+<span class="code-string">ANTHROPIC_API_KEY</span>=sk-ant-xxxxxxxxxxxxxxxxxx</code></div>
+
+    <h3>基本的なAPIリクエスト例（Python）</h3>
+    <div class="code-block fi"><code><span class="code-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+message = client.messages.create(
+    model=<span class="code-string">"claude-sonnet-4-6"</span>,
+    max_tokens=<span class="code-string">1024</span>,
+    messages=[
+        {<span class="code-string">"role"</span>: <span class="code-string">"user"</span>, <span class="code-string">"content"</span>: <span class="code-string">"こんにちは！"</span>}
+    ]
+)
+<span class="code-keyword">print</span>(message.content)</code></div>
+
+    <h3>モデルの選び方</h3>
+    <div class="model-grid fi">
+      <div class="model-card opus">
+        <div class="model-badge">最高性能</div>
+        <h4>Opus 4.7</h4>
+        <p>複雑な問題や高度な分析に。処理は少し時間がかかる</p>
+      </div>
+      <div class="model-card sonnet">
+        <div class="model-badge">おすすめ</div>
+        <h4>Sonnet 4.6</h4>
+        <p>速さと性能のバランスが良い。通常の開発に最適</p>
+      </div>
+      <div class="model-card haiku">
+        <div class="model-badge">高速・軽量</div>
+        <h4>Haiku 4.5</h4>
+        <p>シンプルな処理に。速くて安価</p>
+      </div>
+    </div>
+
+    <h3>料金の考え方</h3>
+    <p class="fi">APIは<strong>使った量だけ料金が発生</strong>します。「トークン」という単位で計算され、日本語1文字≒1〜2トークンが目安です。</p>
+    <div class="tip-box fi">
+      <strong>節約のコツ：</strong>必要以上に長いメッセージを送らず、用件を簡潔に伝えると料金を抑えられます。
+    </div>
+  </section>
+
+  <!-- 9. 設定・カスタマイズ -->
+  <section id="settings">
+    <h2 class="fi">
+      <span class="material-icons">settings</span>
+      9. 設定・カスタマイズ
+    </h2>
+
+    <h3>settings.json の基本設定</h3>
+    <p class="fi">Claude Codeの動作は <span class="kbd">settings.json</span> というファイルで細かく設定できます。</p>
+    <div class="code-block fi"><code>{
+  <span class="code-string">"theme"</span>: <span class="code-string">"dark"</span>,           <span class="code-comment">// 画面のテーマ（dark/light）</span>
+  <span class="code-string">"language"</span>: <span class="code-string">"ja"</span>         <span class="code-comment">// 使用言語</span>
+}</code></div>
+
+    <h3>CLAUDE.md でプロジェクトのルールを伝える</h3>
+    <p class="fi">プロジェクトのフォルダに <span class="kbd">CLAUDE.md</span> というファイルを置くと、そのフォルダで作業するときのルールをClaude Codeに伝えられます。</p>
+    <div class="code-block fi"><code><span class="code-comment"># CLAUDE.md の例</span>
+
+このプロジェクトは特別支援学校の教材を作るためのものです。
+- 説明は平易な日本語で書いてください
+- 専門用語は避けてください
+- 文字は大きめにしてください</code></div>
+
+    <h3>権限管理・フック</h3>
+    <p class="fi">特定のコマンドを自動的に許可したり、ある操作の前後に自動実行する処理（フック）を設定できます。</p>
+    <div class="warn-box fi">
+      <strong>注意：</strong>設定ファイルを変更するときは、元の内容をバックアップしてから行うことをおすすめします。
+    </div>
+  </section>
+
+  <!-- 10. うまく使うコツ -->
+  <section id="tips">
+    <h2 class="fi">
+      <span class="material-icons">lightbulb</span>
+      10. うまく使うコツ・Tips
+    </h2>
+
+    <h3>効果的なプロンプトの書き方</h3>
+    <div class="tip-box fi">
+      <strong>具体的に伝える</strong><br>
+      ❌「直して」<br>
+      ✅「15行目でエラーが出ています。TypeError を直してください」
+    </div>
+    <div class="tip-box fi">
+      <strong>役割を伝える</strong><br>
+      ✅「あなたは特別支援学校の先生のアシスタントです。子どもにわかりやすく説明してください」
+    </div>
+    <div class="tip-box fi">
+      <strong>段階的に作る</strong><br>
+      一度にすべてを頼まず、まず最小限のものを作って、少しずつ追加していくと成功しやすい
+    </div>
+
+    <h3>うまくいかないときの対処法</h3>
+    <div class="fi">
+      <table>
+        <tr><th>困ったこと</th><th>対処法</th></tr>
+        <tr><td>思った通りに作ってくれない</td><td>「違います。〇〇のようにしてください」と具体的に言い直す</td></tr>
+        <tr><td>エラーが直らない</td><td>「別の方法で直してください」と頼む</td></tr>
+        <tr><td>動作が遅い・止まった</td><td><span class="kbd">Ctrl+C</span> で中断して、もう一度頼む</td></tr>
+        <tr><td>会話が長くなりすぎた</td><td><span class="kbd">/clear</span> でリセットして最初から頼む</td></tr>
+      </table>
+    </div>
+
+    <h3>よくある失敗パターン</h3>
+    <ul class="fi">
+      <li>一度に何でも頼みすぎる → 少しずつ確認しながら進める</li>
+      <li>「なんとなく」で頼む → 誰が使うか・何のためかを伝える</li>
+      <li>エラーを無視する → エラーメッセージをそのままコピーして貼り付ける</li>
+    </ul>
+
+    <div class="tip-box fi">
+      <strong>最大のコツ：</strong>うまくいかなくても大丈夫！Claude Codeは何度でも付き合ってくれます。「もう一度やり直して」「こうしてほしい」と遠慮なく伝えましょう。
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function toggleTheme() {
+    const body = document.body;
+    const isDark = body.getAttribute('data-theme') === 'dark';
+    body.setAttribute('data-theme', isDark ? '' : 'dark');
+    const btn = document.getElementById('theme-toggle');
+    btn.innerHTML = isDark
+      ? '<span class="material-icons">dark_mode</span>ダークモード切替'
+      : '<span class="material-icons">light_mode</span>ライトモード切替';
+  }
+
+  // アクティブなナビリンクをハイライト
+  const sections = document.querySelectorAll('section');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      if (window.scrollY >= section.offsetTop - 120) current = section.getAttribute('id');
+    });
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+    });
+  });
+
+  // フェードインアニメーション
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('is-visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fi').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
